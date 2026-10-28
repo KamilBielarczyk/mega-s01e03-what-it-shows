@@ -7,6 +7,7 @@ reviewed: 2026-10-28
 signature: v1.eyJzdWIiOiI3MzUwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMjMxNzksImV4cCI6MTc5MzMwOTU3OX0.zo5Upxe6HAHhBMYQvCDtE4PffZVhGJldQfWkv_YuLEs
 ---
 
+
 <script>
   import ProblemTable from '#lib/kb/ProblemTable.svelte';
   import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
@@ -14,7 +15,11 @@ signature: v1.eyJzdWIiOiI3MzUwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYX
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
 
   const repo = 'https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues';
-  const issues = { parser: `${repo}/1`, hint: `${repo}/2`, 'one-day move': `${repo}/3` };
+  const issues = {
+    parser: { href: `${repo}/1`, state: 'fixed' },
+    hint: { href: `${repo}/2`, state: "won't fix" },
+    'one-day move': { href: `${repo}/3`, state: 'open' },
+  };
 </script>
 
 [#4471](/kb/incidents/4471) was merged as one issue: the parser reads dates month first. Read
@@ -22,31 +27,36 @@ the reports and they describe three problems. We merged on subject line alone
 ([decision 0001](/kb/decisions/0001-dedupe-by-subject)), so nobody read the bodies, and the
 problems ended up in one ticket.
 
+Engineering closed #4471 on 5 October with two answers: the parser is fixed, and the booking-v3
+form is retired. Neither touches the third problem.
+
 <Callout kind="warn">
-Not one fix. The parser fix leaves the other two problems open.
+#4471 is closed, but one problem is still open: the one-day move. Nobody has a fix for it yet.
 </Callout>
 
 ## The three problems
 
-1. **parser:** the shared parser reads every date month first. Our tenants write the day first,
-   so a booking for 7 April lands on 4 July.
+1. **parser · fixed:** the shared parser read every date month first. Our tenants write the day
+   first, so a booking for 7 April landed on 4 July. Fixed in "fix(dates): parse dd/mm for eu
+   locales".
    [Issue #1](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/1)
-2. **hint:** the booking-v3 form prints `MM/DD/YYYY` under its date field. A day-first tenant's
-   people type the month first, as the hint tells them, and the form reads the day first.
-   The parser fix does not touch this.
+2. **hint · won't fix:** the booking-v3 form printed `MM/DD/YYYY` under its date field. A
+   day-first tenant's people typed the month first, as the hint told them, and the form read
+   the day first. The parser fix did not touch this. Won't fix: booking-v3 is retired.
    [Issue #2](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/2)
-3. **one-day move:** some bookings move by one day, not by a swapped month. "Client in Lisbon
-   got Tuesday. Client in Toronto got Monday." No day/month swap explains these.
+3. **one-day move · open:** some bookings move by one day, not by a swapped month. "Client in
+   Lisbon got Tuesday. Client in Toronto got Monday." No day/month swap explains these, so
+   neither fix reaches them.
    [Issue #3](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/3)
 
 ## Counts
 
 <ProblemTable ticket={4471} {issues} />
 
-The table sorts reports by tenant: where they are and which booking form they run. Intake's tag
-is a guess from the browser, and it disagrees with the tenant often. The one-day moves are the
-reports the desk read as a one-day move; they come out of the cause their tenant files them
-under.
+The table counts the desk's way: each report under its tenant's cause (where they are and which
+booking form they run), not under intake's tag, which is a guess from the browser. The reports
+the desk read as a one-day move stay counted where their tenant files them, and have a row of
+their own.
 
 ## Since April
 
@@ -54,7 +64,8 @@ under.
 
 ## What to do with new reports
 
-- Month and day swapped, booking-v3 form: issue #2. Any other way in: issue #1.
+- Month and day swapped: this should not happen since 5 October. Reopen issue #1 and link the
+  report.
 - One day off, or different days for people in different places: issue #3.
 - Same subject line is not the same problem. Read the body before you merge.
 
