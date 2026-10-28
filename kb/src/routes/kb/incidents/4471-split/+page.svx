@@ -1,0 +1,61 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: support desk
+status: open
+reviewed: 2026-10-28
+signature: Kamil Bielarczyk
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues';
+  const issues = { parser: `${repo}/1`, hint: `${repo}/2`, 'one-day move': `${repo}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) was merged as one issue: the parser reads dates month first. Read
+the reports and they describe three problems. We merged on subject line alone
+([decision 0001](/kb/decisions/0001-dedupe-by-subject)), so nobody read the bodies, and the
+problems ended up in one ticket.
+
+<Callout kind="warn">
+Not one fix. The parser fix leaves the other two problems open.
+</Callout>
+
+## The three problems
+
+1. **parser:** the shared parser reads every date month first. Our tenants write the day first,
+   so a booking for 7 April lands on 4 July.
+   [Issue #1](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/1)
+2. **hint:** the booking-v3 form prints `MM/DD/YYYY` under its date field. A day-first tenant's
+   people type the month first, as the hint tells them, and the form reads the day first.
+   The parser fix does not touch this.
+   [Issue #2](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/2)
+3. **one-day move:** some bookings move by one day, not by a swapped month. "Client in Lisbon
+   got Tuesday. Client in Toronto got Monday." No day/month swap explains these.
+   [Issue #3](https://github.com/KamilBielarczyk/mega-s01e03-what-it-shows/issues/3)
+
+## Counts
+
+<ProblemTable ticket={4471} {issues} />
+
+The table sorts reports by tenant: where they are and which booking form they run. Intake's tag
+is a guess from the browser, and it disagrees with the tenant often. The one-day moves are the
+reports the desk read as a one-day move; they come out of the cause their tenant files them
+under.
+
+## Since April
+
+<QueueTimeline ticket={4471} />
+
+## What to do with new reports
+
+- Month and day swapped, booking-v3 form: issue #2. Any other way in: issue #1.
+- One day off, or different days for people in different places: issue #3.
+- Same subject line is not the same problem. Read the body before you merge.
+
+<RenderStamp {signature} />
